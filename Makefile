@@ -2,12 +2,19 @@ IMAGEMAGICK_VERSION=7.1.1-21
 
 ROOT_DIR=$(shell realpath "$$PWD")
 
-PLATFORM=$(uname -sm | awk '{print tolower($1"-"$2)}')
+OS=$(shell uname -s)
+ARCH=$(shell uname -m)
+PLATFORM=$(shell echo "$(OS)-$(ARCH)" | tr A-Z a-z)
+
 PACKAGE_PREFIX=imagemagick-$(IMAGEMAGICK_VERSION)
 PACKAGE_NAME=imagemagick-$(PLATFORM)-$(IMAGEMAGICK_VERSION).tar.gz
 
 DIST_DIR=$(ROOT_DIR)/dist/$(PACKAGE_PREFIX)
 WORK_DIR=$(ROOT_DIR)/work
+
+hello:
+	echo $(PLATFORM_INFO)
+	echo $(PLATFORM)
 
 dirs:
 	mkdir -p $(DIST_DIR)
@@ -136,3 +143,9 @@ imagemagick: libgs libjpeg libpng libtiff liblcms2 zlib
 			--with-xml=no && \
 		make install && \
 	popd # $(WORK_DIR)
+
+dist: imagemagick
+	pushd $(ROOT_DIR)/dist && \
+		rm -rf $(PACKAGE_PREFIX)/share && \
+		tar zcf $(PACKAGE_NAME) $(PACKAGE_PREFIX) && \
+	popd # $(ROOT_DIR)/dist
